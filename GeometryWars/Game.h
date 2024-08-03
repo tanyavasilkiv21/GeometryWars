@@ -21,11 +21,13 @@ class Game
 	EnemyConfig m_enemyConfig;
 	BulletConfig m_bulletConfig;
 	sf::Clock m_deltaClock;
-	bool m_paused = false;
 	int m_score = 0;
 	int m_currentFrame = 0;
 	int m_lastEnemySpawnTime = 0;
 	int m_spawnTime = 70;
+	int m_framesForSpecialWeapon = 100;
+	int m_framesPastForWeapon = 100;
+
 	bool m_running = true;
 	bool m_sMovement = true;
 	bool m_sLifespawn = true;
@@ -33,6 +35,7 @@ class Game
 	bool m_sCollision = true;
 	bool m_sRender = true;
 	bool m_sUserInput = true;
+	bool m_paused = false;
 	std::shared_ptr<Entity> m_player;
 public:
 	Game(const std::string& config);
@@ -44,6 +47,7 @@ public:
 	void spawnEnemy();
 	void spawnSmallEnemies(std::shared_ptr<Entity> e);
 	void spawnBullet(std::shared_ptr<Entity> entity, const Vec2 & target);
+	void spawnSuperWeapon();
 	void sMovement();
 	void sCollision();
 	void sEnemySpawner();

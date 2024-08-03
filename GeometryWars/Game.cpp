@@ -105,6 +105,10 @@ void Game::run()
 		sRender();
 
 		m_currentFrame++;
+		if (m_framesPastForWeapon < m_framesForSpecialWeapon)
+		{
+			m_framesPastForWeapon++;
+		}
 	}
 }
 void Game::handlePauseInput()
@@ -190,6 +194,36 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2& target)
 		sf::Color(m_bulletConfig.OR, m_bulletConfig.OG, m_bulletConfig.OB), m_bulletConfig.OT);
 	bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
 	bullet->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.L);
+}
+
+void Game::spawnSuperWeapon()
+{
+	int quantityOfBullets = m_player->cShape->circle.getPointCount();
+	float angleStep = 2.0f * 3.14f / quantityOfBullets;
+	float baseSpeed = 6.0f;
+
+	sf::Vector2f playerPos (m_player->cTransform->pos.x, m_player->cTransform->pos.y);
+
+	for (int i = 0; i < quantityOfBullets; i++)
+	{
+		auto bullet = m_entities.addEntity("bullet");
+
+		sf::Vector2f point = m_player->cShape->circle.getPoint(i);
+		float posX = playerPos.x + point.x - m_player->cShape->circle.getRadius();
+		float posY = playerPos.y + point.y - m_player->cShape->circle.getRadius();
+
+		float angle = i * angleStep;
+		float velocityX = baseSpeed * std::cos(angle);
+		float velocityY = baseSpeed * std::sin(angle);
+
+		bullet->cTransform = std::make_shared<CTransform>(Vec2(posX, posY), Vec2(velocityX, velocityY), 0.0);
+
+		bullet->cShape = std::make_shared<CShape>(m_bulletConfig.SR, m_bulletConfig.V, sf::Color(m_bulletConfig.FR, m_bulletConfig.FG, m_bulletConfig.FB),
+			sf::Color(m_bulletConfig.OR, m_bulletConfig.OG, m_bulletConfig.OB), m_bulletConfig.OT);
+
+		bullet->cCollision = std::make_shared<CCollision>(m_bulletConfig.CR);
+		bullet->cLifespan = std::make_shared<CLifespan>(m_bulletConfig.L);
+	}
 }
 
 void Game::sMovement()
@@ -450,6 +484,15 @@ void Game::sUserInput()
 			{
 				spawnBullet(m_player, Vec2(event.mouseButton.x, event.mouseButton.y));
 			}
+			if (event.mouseButton.button == sf::Mouse::Right)
+			{
+				if (m_framesPastForWeapon == m_framesForSpecialWeapon)
+				{
+					spawnSuperWeapon();
+					m_framesPastForWeapon = 0;
+				}
+			}
 		}
 	}
+
 }
